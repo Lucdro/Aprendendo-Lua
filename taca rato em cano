@@ -1,0 +1,72 @@
+function love.load()
+  h = love.graphics.newImage("hamster.png")
+  montanha = love.graphics.newImage("mario_background.png")
+  nuvem = love.graphics.newImage("mario_cloud.png")
+  chao = love.graphics.newImage("mario_ground.png")
+  cano = love.graphics.newImage("mario_pipe.png")
+  chaoy = 500
+  chaox = 0
+  chaoqtd = 7
+  montanhay = chaoy - montanha:getHeight()
+  montanhax = 0
+  montanhaqtd = 3
+  montanhaespaco = 50 + montanha:getWidth()
+  canox = love.graphics.getWidth() - 200
+  canoy = chaoy - cano:getHeight()
+  canomeio = canox + cano:getWidth()/2
+  love.graphics.setBackgroundColor(170, 242, 240)
+  nuvemx = 0
+  nuvemy = canoy - nuvem:getHeight() - 150
+  hx = 0
+  hy = 0 
+  hsx = 0.5
+  hsy = 0.5
+  hcaindo = false
+  ox = h:getWidth()/2
+  oy = h:getHeight()/2
+  pontuacao = 0
+end
+
+function love.update(dt)
+  nuvemx = nuvemx + 200*dt
+  if(nuvemx > love.graphics.getWidth()) then
+    nuvemx = 0 - nuvem:getWidth()
+  end
+  
+  if(love.mouse.isDown(1) and not(hcaindo)) then
+    hx = nuvemx + nuvem:getWidth()/2
+    hy = nuvemy + h:getHeight()
+    hcaindo = true
+  end
+  
+  if hcaindo == true then
+    if 5 > math.abs(canoy - hy)  and 40 > math.abs(canox+cano:getWidth()/2-hx) then
+      hcaindo = false
+      pontuacao = pontuacao + 1
+    end
+    
+    hy = hy + 400 *dt
+  end
+  
+  if hy >= chaoy and hcaindo then
+    hcaindo = false
+    pontuacao = pontuacao - 1
+  end
+end
+
+function love.draw()
+  for i = 0, chaoqtd -1 do
+    love.graphics.draw(chao,chaox + chao:getWidth() * i ,chaoy)
+  end
+  for i = 0, montanhaqtd-1 do
+    love.graphics.draw(montanha,montanhax+montanhaespaco * i,montanhay)
+  end
+  love.graphics.draw(cano,canox,canoy)
+  love.graphics.draw(nuvem,nuvemx,nuvemy)
+  if hcaindo then
+    love.graphics.draw(h,hx,hy,0,hsx,hsy,ox,oy)  
+  end
+  love.graphics.setColor(99, 250, 52)
+  love.graphics.print(pontuacao,love.graphics.getWidth()-100,20,0,4,4)
+  love.graphics.setColor(255,255,255)
+end

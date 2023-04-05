@@ -1,0 +1,194 @@
+local hero = {
+  spritecont = 1,
+  x = 100,
+  y = 225,
+  sx = 1,
+  animacoes = {},
+  anicom = 1,
+  anifim = 4,
+  anitemp = 0.1,
+  anicont = 0,
+  ultimadirecao = "right",
+  destx = 0,
+  desty = 0
+}
+local pedras = {
+  locais = {
+  20,20,
+  500,200,
+  300,600
+},
+sprite
+}
+function getOx(sprite)
+  return sprite:getWidth()/2
+end
+function getOy(sprite)
+  return sprite:getHeight()/2
+end
+
+function animacao(dt)
+  hero.anicont = hero.anicont + dt
+  if hero.anicont > hero.anitemp then
+    hero.spritecont = hero.spritecont + 1
+    if hero.spritecont > hero.anifim then
+      hero.spritecont = hero.anicom
+    end
+    hero.anicont = 0
+  end
+end
+
+function love.load()
+  for x = 1, 16 do
+    hero.animacoes[x] = love.graphics.newImage("imgs/Hero_Walk_" .. (x>9 and x or "0"..x) .. ".png")
+  end
+  pedras.sprite = love.graphics.newImage("imgs/pedra.png")
+  hero.destx = hero.x
+  hero.desty = hero.y
+end
+
+function love.update(dt)
+  
+  if love.mouse.isDown(1) then
+    hero.destx = love.mouse.getX()
+    hero.desty = love.mouse.getY()
+  end
+  local moveu = false
+  ==[[
+  local teclascont = 0
+  local duasteclas = false
+  if love.keyboard.isDown("right") then
+    teclascont = teclascont + 1
+  end
+  if love.keyboard.isDown("left") then
+    teclascont = teclascont + 1
+  end
+  if love.keyboard.isDown("down") then
+    teclascont = teclascont + 1
+  end
+  if love.keyboard.isDown("up") then
+    teclascont = teclascont + 1
+  end
+  if teclascont > 1 then
+    duasteclas = true
+  end
+  --]]
+  if love.keyboard.isDown("right") then
+    hero.x = hero.x + (100*dt)
+    if hero.x >= love.graphics.getWidth() - hero.animacoes[hero.spritecont]:getWidth()/4 then
+      hero.x = love.graphics.getWidth()- hero.animacoes[hero.spritecont]:getWidth()/4
+    end
+    
+    for i = 1, #pedras.locais,2 do
+      if hero.x == pedras.locais[i] then
+        hero.x = hero.x - pedras.locais[i]
+      end
+    end
+    
+    if not(hero.ultimadirecao == "right") and not(moveu) then
+      hero.sx = 1
+      hero.anicom = 1
+      hero.anifim = 4
+      hero.spritecont = hero.anicom
+      hero.ultimadirecao = "right"
+    end
+    moveu = true
+  end
+  if love.keyboard.isDown("left") then
+    hero.x = hero.x - (100*dt)
+    if hero.x < 0 + hero.animacoes[hero.spritecont]:getWidth()/4 then
+      hero.x = 0 + hero.animacoes[hero.spritecont]:getWidth()/4
+    end
+    
+    for i = 1, #pedras.locais,2 do
+      if hero.x == pedras.locais[i] then
+        hero.x = hero.x + pedras.sprite:getWidth()
+      end
+    end
+    
+    if not(hero.ultimadirecao == "left") and not(moveu) then
+      hero.sx = -1
+      hero.anicom = 1
+      hero.anifim = 4
+      hero.spritecont = hero.anicom
+      hero.ultimadirecao = "left"
+    end
+    moveu = true
+  end
+  if love.keyboard.isDown("down") then
+    hero.y = hero.y + (100*dt)
+    if hero.y >= love.graphics.getHeight() - hero.animacoes[hero.spritecont]:getHeight()/2 then
+      hero.y = love.graphics.getHeight()- hero.animacoes[hero.spritecont]:getHeight()/2
+    end
+    
+    for i = 1, #pedras.locais,2 do
+      if hero.y == pedras.locais[i+1] then
+        hero.y = pedras.locais[i+1]
+      end
+    end
+    
+    if not(hero.ultimadirecao == "down") and not(moveu) then
+      hero.sx = 1
+      hero.anicom = 13
+      hero.anifim = 16
+      hero.spritecont = hero.anicom
+      hero.ultimadirecao = "down"
+    end
+    
+    moveu = true
+  end
+  if love.keyboard.isDown("up") then
+    hero.y = hero.y - (100*dt)
+    if hero.y < 0 + hero.animacoes[hero.spritecont]:getHeight()/2 then
+      hero.y = 0 + hero.animacoes[hero.spritecont]:getHeight()/2
+    end
+    
+    for i = 1, #pedras.locais,2 do
+      if hero.y == pedras.locais[i+1] then
+        hero.y = hero.y - pedras.sprite:getHeight()
+      end
+    end
+    
+    if not(hero.ultimadirecao == "up") and not(moveu) then
+      hero.sx = 1
+      hero.anicom = 9
+      hero.anifim = 12
+      hero.spritecont = hero.anicom
+      hero.ultimadirecao = "up"
+    end
+    moveu = true
+  end
+  
+  if moveu then
+    if not((love.keyboard.isDown("up") and love.keyboard.isDown("down")) or 
+      (love.keyboard.isDown("right") and love.keyboard.isDown("left"))) then
+      animacao(dt)
+      hero.destx = hero.x
+      hero.desty = hero.y
+    end
+  else
+    if hero.x < hero.destx then
+      hero.x = hero.x + 100 * dt
+      if hero.x > hero.destx then
+        hero.destx = hero.destx
+      end
+    elseif hero.x > hero.destx then
+      hero.x = hero.x - 100 * dt
+      if hero.x < hero.destx then
+        hero.destx = hero.destx
+      end
+    elseif hero.y < hero.desty then
+      hero.y = hero.y + 100 * dt
+    elseif hero.y > hero.desty then
+      hero.y = hero.y - 100 * dt
+    end
+  end
+  
+end
+function love.draw()
+  sprite = hero.animacoes[hero.spritecont]
+  love.graphics.draw(sprite, hero.x, hero.y,0,hero.sx,1,getOx(sprite),getOy(sprite))
+  for i = 1, #pedras.locais,2 do
+    love.graphics.draw(pedras.sprite,pedras.locais[i],pedras.locais[i+1])
+    end
+end

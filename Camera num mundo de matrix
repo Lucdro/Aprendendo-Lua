@@ -1,0 +1,59 @@
+local mapa = {}
+local grass = love.graphics.newImage("grass.png")
+local sky = love.graphics.newImage("sky.png")
+local stone = love.graphics.newImage("stone.png")
+local tamanhosprite = stone:getWidth()
+
+local larguratela = love.graphics.getWidth()
+local margenx = math.ceil((larguratela/tamanhosprite) /2) * tamanhosprite
+local camx = margenx
+local tamanhomapax = 0
+
+function LoadMap(filename)
+  filepath = filename .. '.txt'
+
+  local file = io.open(filepath)
+  for line in file:lines() do
+    mapa[#mapa + 1] = {}
+    for j = 1 , #line do
+       mapa[#mapa][j] = line:sub(j,j) 
+    end
+  end
+  file:close()
+  tamanhomapax = #mapa[1] * tamanhosprite
+end
+
+function love.load()
+  LoadMap("Mapa01")
+  
+end
+
+function love.update(dt)
+  local velocidade = 200
+  if love.keyboard.isDown("right") and camx + margenx < tamanhomapax then
+    camx = camx + velocidade*dt
+    if camx + margenx > tamanhomapax then
+      camx = tamanhomapax - margenx
+    end
+  end
+  if love.keyboard.isDown("left") and camx >= margenx  then
+    camx = camx - velocidade*dt
+    if camx < margenx then
+      camx = margenx
+    end
+  end
+end
+
+function love.draw()  
+  for i = 1, #mapa do 
+    for j = 1, #mapa[i] do
+      if mapa[i][j] == "G" then
+        love.graphics.draw(grass,((j-1)*tamanhosprite) - (camx - margenx),((i - 1)*tamanhosprite))
+      elseif mapa[i][j] == "T" then
+        love.graphics.draw(stone,((j-1)*tamanhosprite) - (camx - margenx),((i - 1)*tamanhosprite))
+      elseif mapa[i][j] == "X" then
+        love.graphics.draw(sky,((j-1)*tamanhosprite) - (camx - margenx),((i - 1)*tamanhosprite))
+      end
+    end
+  end
+end
